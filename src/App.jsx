@@ -6,6 +6,9 @@ import Login from './pages/Login';
 import Dashboard from './pages/dashboards/Dashboard';
 import EmployeeList from './pages/employees/EmployeeList';
 import EmployeeForm from './pages/employees/EmployeeForm';
+import DepartmentList from './pages/departments/DepartmentList';
+import LeaveList from './pages/leave/LeaveList';
+import Reports from './pages/reports/Reports';
 import './App.css';
 
 function App() {
@@ -51,28 +54,11 @@ function App() {
           />
 
           <Route
-            path="/profile"
-            element={
-              <ProtectedRoute>
-                <MainLayout>
-                  <div className="page-placeholder">
-                    <h1>My Profile</h1>
-                    <p>Profile management coming soon...</p>
-                  </div>
-                </MainLayout>
-              </ProtectedRoute>
-            }
-          />
-
-          <Route
             path="/departments"
             element={
               <ProtectedRoute allowedRoles={['admin', 'hr_officer']}>
                 <MainLayout>
-                  <div className="page-placeholder">
-                    <h1>Departments</h1>
-                    <p>Department management coming soon...</p>
-                  </div>
+                  <DepartmentList />
                 </MainLayout>
               </ProtectedRoute>
             }
@@ -83,38 +69,7 @@ function App() {
             element={
               <ProtectedRoute>
                 <MainLayout>
-                  <div className="page-placeholder">
-                    <h1>Leave Requests</h1>
-                    <p>Leave request management coming soon...</p>
-                  </div>
-                </MainLayout>
-              </ProtectedRoute>
-            }
-          />
-
-          <Route
-            path="/attendance"
-            element={
-              <ProtectedRoute>
-                <MainLayout>
-                  <div className="page-placeholder">
-                    <h1>Attendance</h1>
-                    <p>Attendance tracking coming soon...</p>
-                  </div>
-                </MainLayout>
-              </ProtectedRoute>
-            }
-          />
-
-          <Route
-            path="/performance"
-            element={
-              <ProtectedRoute>
-                <MainLayout>
-                  <div className="page-placeholder">
-                    <h1>Performance Reviews</h1>
-                    <p>Performance management coming soon...</p>
-                  </div>
+                  <LeaveList />
                 </MainLayout>
               </ProtectedRoute>
             }
@@ -125,10 +80,7 @@ function App() {
             element={
               <ProtectedRoute allowedRoles={['admin', 'hr_officer', 'finance_officer']}>
                 <MainLayout>
-                  <div className="page-placeholder">
-                    <h1>Reports</h1>
-                    <p>Reporting module coming soon...</p>
-                  </div>
+                  <Reports />
                 </MainLayout>
               </ProtectedRoute>
             }

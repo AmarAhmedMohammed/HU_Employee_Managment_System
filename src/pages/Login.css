@@ -1,91 +1,157 @@
+/* =============================================
+   Modern SaaS Login Page
+   ============================================= */
+
 .login-container {
   min-height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, var(--hu-primary) 0%, var(--hu-primary-dark) 100%);
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 50%, #e2e8f0 100%);
   padding: 2rem;
+  position: relative;
+}
+
+/* Decorative background elements */
+.login-container::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: 
+    radial-gradient(circle at 20% 30%, rgba(34, 197, 94, 0.08) 0%, transparent 50%),
+    radial-gradient(circle at 80% 70%, rgba(30, 86, 49, 0.06) 0%, transparent 50%);
+  pointer-events: none;
 }
 
 .login-card {
   background-color: var(--color-white);
-  border-radius: var(--border-radius-lg);
-  box-shadow: var(--shadow-xl);
+  border-radius: var(--border-radius-2xl);
+  box-shadow: var(--shadow-card-hover);
   padding: 3rem;
   width: 100%;
-  max-width: 450px;
+  max-width: 420px;
+  position: relative;
+  z-index: 1;
+  border: 1px solid var(--border-light);
 }
 
 .login-header {
   text-align: center;
-  margin-bottom: 2.5rem;
-}
-
-.login-logo {
-  width: 120px;
-  height: auto;
-  margin-bottom: 1.5rem;
-}
-
-.login-header h1 {
-  font-size: 1.75rem;
-  color: var(--hu-primary);
-  margin-bottom: 0.5rem;
-}
-
-.login-header h2 {
-  font-size: 1.1rem;
-  color: var(--text-secondary);
-  font-weight: 500;
-}
-
-.login-form {
   margin-bottom: 2rem;
 }
 
-.alert {
-  padding: 0.875rem 1.125rem;
-  border-radius: var(--border-radius);
+.login-logo {
+  width: 80px;
+  height: auto;
+  margin-bottom: 1.25rem;
+}
+
+.login-header h1 {
+  font-size: 1.5rem;
+  color: var(--text-primary);
+  margin-bottom: 0.375rem;
+  font-weight: 700;
+}
+
+.login-header h2 {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  font-weight: 400;
+}
+
+.login-form {
   margin-bottom: 1.5rem;
-  font-size: 0.925rem;
+}
+
+.login-form .form-group {
+  margin-bottom: 1.25rem;
+}
+
+.login-form label {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--text-primary);
+  margin-bottom: 0.5rem;
+}
+
+.login-form input {
+  padding: 0.875rem 1rem;
+  border-radius: var(--border-radius-lg);
+  border: 1.5px solid var(--border-color);
+  font-size: 0.9375rem;
+}
+
+.login-form input:focus {
+  border-color: var(--green-500);
+  box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.12);
+}
+
+.login-form .btn-primary {
+  width: 100%;
+  padding: 0.875rem;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  background: var(--gradient-accent);
+  border-radius: var(--border-radius-lg);
+  margin-top: 0.5rem;
+}
+
+.login-form .btn-primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(34, 197, 94, 0.35);
+}
+
+.alert {
+  padding: 0.875rem 1rem;
+  border-radius: var(--border-radius-lg);
+  margin-bottom: 1.25rem;
+  font-size: 0.875rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 }
 
 .alert-error {
-  background-color: #fee2e2;
-  color: #991b1b;
+  background-color: #fef2f2;
+  color: #dc2626;
   border: 1px solid #fecaca;
 }
 
 .login-footer {
   text-align: center;
-  padding-top: 1.5rem;
-  border-top: 1px solid var(--border-color);
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--border-light);
 }
 
 .login-help {
-  font-size: 0.825rem;
+  font-size: 0.8rem;
   color: var(--text-secondary);
-  line-height: 1.6;
+  line-height: 1.7;
 }
 
 .login-help strong {
-  color: var(--hu-primary);
+  color: var(--green-600);
+  font-weight: 600;
 }
 
 @media (max-width: 480px) {
   .login-card {
     padding: 2rem 1.5rem;
+    border-radius: var(--border-radius-xl);
   }
 
   .login-logo {
-    width: 90px;
+    width: 64px;
   }
 
   .login-header h1 {
-    font-size: 1.5rem;
+    font-size: 1.25rem;
   }
 
   .login-header h2 {
-    font-size: 1rem;
+    font-size: 0.8rem;
   }
 }

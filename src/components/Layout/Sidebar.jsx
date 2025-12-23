@@ -7,8 +7,7 @@ const Sidebar = () => {
 
   const getMenuItems = () => {
     const commonItems = [
-      { path: '/dashboard', label: 'Dashboard', icon: '📊' },
-      { path: '/profile', label: 'My Profile', icon: '👤' }
+      { path: '/dashboard', label: 'Dashboard', icon: '📊' }
     ];
 
     const roleBasedItems = {
@@ -16,32 +15,24 @@ const Sidebar = () => {
         { path: '/employees', label: 'Employees', icon: '👥' },
         { path: '/departments', label: 'Departments', icon: '🏢' },
         { path: '/leave-requests', label: 'Leave Requests', icon: '📋' },
-        { path: '/attendance', label: 'Attendance', icon: '✓' },
-        { path: '/performance', label: 'Performance', icon: '⭐' },
         { path: '/reports', label: 'Reports', icon: '📈' }
       ],
       hr_officer: [
         { path: '/employees', label: 'Employees', icon: '👥' },
         { path: '/departments', label: 'Departments', icon: '🏢' },
         { path: '/leave-requests', label: 'Leave Requests', icon: '📋' },
-        { path: '/attendance', label: 'Attendance', icon: '✓' },
-        { path: '/performance', label: 'Performance', icon: '⭐' },
         { path: '/reports', label: 'Reports', icon: '📈' }
       ],
       department_head: [
         { path: '/employees', label: 'My Department', icon: '👥' },
-        { path: '/leave-requests', label: 'Leave Requests', icon: '📋' },
-        { path: '/attendance', label: 'Attendance', icon: '✓' },
-        { path: '/performance', label: 'Performance', icon: '⭐' }
+        { path: '/leave-requests', label: 'Leave Requests', icon: '📋' }
       ],
       finance_officer: [
         { path: '/employees', label: 'Employees', icon: '👥' },
         { path: '/reports', label: 'Reports', icon: '📈' }
       ],
       employee: [
-        { path: '/leave-requests', label: 'My Leave Requests', icon: '📋' },
-        { path: '/attendance', label: 'My Attendance', icon: '✓' },
-        { path: '/performance', label: 'My Reviews', icon: '⭐' }
+        { path: '/leave-requests', label: 'My Leave Requests', icon: '📋' }
       ]
     };
 

@@ -51,14 +51,6 @@ const Dashboard = () => {
           </div>
         </div>
 
-        <div className="stat-card stat-success">
-          <div className="stat-icon">✓</div>
-          <div className="stat-content">
-            <h3>{stats?.todayPresent || 0}</h3>
-            <p>Present Today</p>
-          </div>
-        </div>
-
         <div className="stat-card stat-info">
           <div className="stat-icon">🏢</div>
           <div className="stat-content">

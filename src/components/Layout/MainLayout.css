@@ -1,3 +1,7 @@
+/* =============================================
+   Modern SaaS Main Layout
+   ============================================= */
+
 .app-container {
   min-height: 100vh;
   display: flex;
@@ -12,13 +16,28 @@
 
 .main-content {
   flex: 1;
-  padding: 2rem;
-  min-height: calc(100vh - 80px);
+  padding: 1.5rem 2rem;
+  min-height: calc(100vh - 65px);
   overflow-x: hidden;
+  background-color: var(--bg-secondary);
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+  .main-content {
+    padding: 1.25rem 1.5rem;
+  }
 }
 
 @media (max-width: 768px) {
   .main-content {
     padding: 1rem;
+    min-height: calc(100vh - 65px);
+  }
+}
+
+@media (max-width: 480px) {
+  .main-content {
+    padding: 0.75rem;
   }
 }
