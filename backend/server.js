@@ -28,6 +28,16 @@ app.get("/create-tables", (req, res) => {
       id INT PRIMARY KEY AUTO_INCREMENT, name VARCHAR(100) NOT NULL,
       head_id INT NULL, description TEXT, status ENUM('active','inactive') DEFAULT 'active',
       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP)`,
+    `CREATE TABLE IF NOT EXISTS admins (
+      id INT PRIMARY KEY AUTO_INCREMENT,
+      admin_id VARCHAR(20) UNIQUE NOT NULL,
+      username VARCHAR(50) UNIQUE NOT NULL,
+      email VARCHAR(100) UNIQUE NOT NULL,
+      password VARCHAR(255) NOT NULL,
+      first_name VARCHAR(50) NOT NULL,
+      last_name VARCHAR(50) NOT NULL,
+      status ENUM('active','inactive') DEFAULT 'active',
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP)`,
     `CREATE TABLE IF NOT EXISTS employees (
       id INT PRIMARY KEY AUTO_INCREMENT, employee_id VARCHAR(20) UNIQUE NOT NULL,
       first_name VARCHAR(50) NOT NULL, last_name VARCHAR(50) NOT NULL,
@@ -73,27 +83,87 @@ app.get("/create-tables", (req, res) => {
 
 app.get("/seed-data", (req, res) => {
   connection.query("INSERT IGNORE INTO departments (name, description) VALUES ('Computer Science','CS Dept'),('HR','Human Resources'),('Finance','Finance Dept')");
+  
+  // Create admin account with ADMIN ID format (separate from employees)
+  connection.query("INSERT IGNORE INTO admins (admin_id, username, email, password, first_name, last_name) VALUES ('ADMIN001','admin','admin@hu.edu.et','password123','System','Administrator')");
+  
+  // Clean up any old admin records from employees table
+  connection.query("DELETE e FROM employees e JOIN users u ON u.employee_id = e.id WHERE u.role = 'admin'");
+  
+  // Create sample employee with HU ID format
   connection.query("INSERT IGNORE INTO employees (employee_id,first_name,last_name,gender,date_of_birth,phone,email,position,department_id,employment_type,hire_date,salary) VALUES ('HU001','Abebe','Kebede','male','1975-03-15','+251911234567','abebe.kebede@hu.edu.et','HR Director',2,'admin','2010-01-15',45000.00)", (err, r) => {
-    if(!err && r?.insertId) connection.query("INSERT IGNORE INTO users (employee_id,email,password,role) VALUES (?,'admin@hu.edu.et','password123','admin')", [r.insertId]);
+    if(!err && r?.insertId) {
+      connection.query("INSERT IGNORE INTO users (employee_id,email,password,role) VALUES (?,'abebe.kebede@hu.edu.et','password123','hr_officer')", [r.insertId]);
+    }
   });
-  res.send("✅ Data Seeded");
+  
+  res.send("✅ Data Seeded - Admin: ADMIN001, Employee: HU001 (Admin records cleaned from employees)");
 });
 
 // AUTH
 app.post("/api/auth/login", (req, res) => {
   const { email, password } = req.body;
   if (!email || !password) return res.status(400).json({ success: false, message: "Email and password required" });
-  connection.query("SELECT u.*, e.first_name, e.last_name, e.position, e.department_id FROM users u JOIN employees e ON u.employee_id = e.id WHERE u.email = ?", [email], (err, results) => {
-    if (err || results.length === 0) return res.status(401).json({ success: false, message: "Invalid credentials" });
-    const user = results[0];
-    if (password !== user.password) return res.status(401).json({ success: false, message: "Invalid credentials" });
-    const token = jwt.sign({ userId: user.id, email: user.email, role: user.role }, "hu_ems_secret_key_2025", { expiresIn: "24h" });
-    res.json({ success: true, data: { token, user: { id: user.id, email: user.email, role: user.role, firstName: user.first_name, lastName: user.last_name, position: user.position, departmentId: user.department_id }}});
+  
+  // First check if it's an admin
+  connection.query("SELECT * FROM admins WHERE email = ?", [email], (err, adminResults) => {
+    if (err) return res.status(500).json({ success: false, message: "Database error" });
+    
+    if (adminResults.length > 0) {
+      // Admin login
+      const admin = adminResults[0];
+      if (password !== admin.password) return res.status(401).json({ success: false, message: "Invalid credentials" });
+      
+      const token = jwt.sign({ userId: admin.id, email: admin.email, role: 'admin', isAdmin: true }, "hu_ems_secret_key_2025", { expiresIn: "24h" });
+      return res.json({ 
+        success: true, 
+        data: { 
+          token, 
+          user: { 
+            id: admin.id,
+            admin_id: admin.admin_id,
+            email: admin.email, 
+            role: 'admin', 
+            firstName: admin.first_name, 
+            lastName: admin.last_name, 
+            position: 'Administrator',
+            isAdmin: true
+          }
+        }
+      });
+    }
+    
+    // If not admin, check employees/users
+    connection.query("SELECT u.*, e.employee_id, e.first_name, e.last_name, e.position, e.department_id FROM users u JOIN employees e ON u.employee_id = e.id WHERE u.email = ?", [email], (err, results) => {
+      if (err || results.length === 0) return res.status(401).json({ success: false, message: "Invalid credentials" });
+      const user = results[0];
+      if (password !== user.password) return res.status(401).json({ success: false, message: "Invalid credentials" });
+      
+      const token = jwt.sign({ userId: user.id, email: user.email, role: user.role, isAdmin: false }, "hu_ems_secret_key_2025", { expiresIn: "24h" });
+      res.json({ 
+        success: true, 
+        data: { 
+          token, 
+          user: { 
+            id: user.id,
+            employee_id: user.employee_id,
+            email: user.email, 
+            role: user.role, 
+            firstName: user.first_name, 
+            lastName: user.last_name, 
+            position: user.position, 
+            departmentId: user.department_id,
+            isAdmin: false
+          }
+        }
+      });
+    });
   });
 });
 
 // EMPLOYEES
 app.get("/api/employees", (req, res) => {
+  // Get all employees - admins are now in separate admins table
   connection.query("SELECT e.*, d.name as department_name FROM employees e LEFT JOIN departments d ON e.department_id = d.id ORDER BY e.created_at DESC", (err, results) => {
     if (err) return res.status(500).json({ success: false, message: "Failed" });
     res.json({ success: true, data: results, count: results.length });
@@ -107,12 +177,38 @@ app.get("/api/employees/:id", (req, res) => {
   });
 });
 
+// Helper function to generate next employee ID
+function generateEmployeeId(lastEmployeeId) {
+  if (!lastEmployeeId) {
+    return 'HU001';
+  }
+  
+  // Extract numeric part (e.g., "HU099" -> "099")
+  const numericPart = lastEmployeeId.replace('HU', '');
+  const nextNumber = parseInt(numericPart, 10) + 1;
+  
+  // Pad with zeros to minimum 3 digits
+  const paddedNumber = String(nextNumber).padStart(3, '0');
+  
+  return `HU${paddedNumber}`;
+}
+
 app.post("/api/employees", (req, res) => {
-  const { employee_id, first_name, last_name, gender, date_of_birth, phone, email, position, department_id, employment_type, hire_date, salary } = req.body;
-  connection.query("INSERT INTO employees (employee_id, first_name, last_name, gender, date_of_birth, phone, email, position, department_id, employment_type, hire_date, salary) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-    [employee_id, first_name, last_name, gender, date_of_birth, phone, email, position, department_id || null, employment_type, hire_date, salary || 0], (err, results) => {
-    if (err) return res.status(500).json({ success: false, message: err.message });
-    res.json({ success: true, message: "Employee created", data: { id: results.insertId }});
+  const { first_name, last_name, gender, date_of_birth, phone, email, position, department_id, employment_type, hire_date, salary } = req.body;
+  
+  // Get the highest employee_id to generate the next one
+  connection.query("SELECT employee_id FROM employees ORDER BY employee_id DESC LIMIT 1", (err, results) => {
+    if (err) return res.status(500).json({ success: false, message: "Failed to generate employee ID" });
+    
+    const lastEmployeeId = results.length > 0 ? results[0].employee_id : null;
+    const newEmployeeId = generateEmployeeId(lastEmployeeId);
+    
+    // Insert employee with generated ID
+    connection.query("INSERT INTO employees (employee_id, first_name, last_name, gender, date_of_birth, phone, email, position, department_id, employment_type, hire_date, salary) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+      [newEmployeeId, first_name, last_name, gender, date_of_birth, phone, email, position, department_id || null, employment_type, hire_date, salary || 0], (err, results) => {
+      if (err) return res.status(500).json({ success: false, message: err.message });
+      res.json({ success: true, message: "Employee created", data: { id: results.insertId, employee_id: newEmployeeId }});
+    });
   });
 });
 
@@ -126,9 +222,28 @@ app.put("/api/employees/:id", (req, res) => {
 });
 
 app.delete("/api/employees/:id", (req, res) => {
-  connection.query("DELETE FROM employees WHERE id=?", [req.params.id], (err) => {
-    if (err) return res.status(500).json({ success: false, message: "Failed" });
-    res.json({ success: true, message: "Deleted" });
+  const employeeId = req.params.id;
+  
+  // Delete from all related tables first due to foreign key constraints
+  // 1. Delete from users table
+  connection.query("DELETE FROM users WHERE employee_id=?", [employeeId], (err) => {
+    // 2. Delete from leave_requests table
+    connection.query("DELETE FROM leave_requests WHERE employee_id=?", [employeeId], (err) => {
+      // 3. Delete from attendance table
+      connection.query("DELETE FROM attendance WHERE employee_id=?", [employeeId], (err) => {
+        // 4. Delete from performance_reviews table (both employee_id and reviewer_id)
+        connection.query("DELETE FROM performance_reviews WHERE employee_id=? OR reviewer_id=?", [employeeId, employeeId], (err) => {
+          // 5. Finally delete from employees table
+          connection.query("DELETE FROM employees WHERE id=?", [employeeId], (err) => {
+            if (err) {
+              console.error('Delete error:', err);
+              return res.status(500).json({ success: false, message: "Failed to delete employee: " + err.message });
+            }
+            res.json({ success: true, message: "Employee deleted successfully" });
+          });
+        });
+      });
+    });
   });
 });
 

@@ -2,81 +2,157 @@
 
 ## Introduction
 
-This feature involves redesigning the Haramaya University Employee Management System to create a visually stunning, modern interface that reflects the university's brand identity. The redesign includes removing the "My Profile" page and enhancing the overall visual appeal with professional styling aligned to Haramaya University's green and gold color scheme.
+This feature involves redesigning the Haramaya University Employee Management System to match a modern school dashboard design with enhanced visual appeal, improved navigation structure, and comprehensive dashboard widgets including statistics, charts, calendars, and performance tracking.
 
 ## Glossary
 
 - **UI_System**: The user interface components including Navbar, Sidebar, and page layouts
-- **Theme_Engine**: The CSS variables and styling system that controls visual appearance
+- **Dashboard_System**: The main dashboard page containing statistics, charts, and widgets
 - **Navigation_System**: The sidebar and routing components that control page navigation
-- **Brand_Colors**: Haramaya University's official colors - Forest Green (#1e5631) and Gold/Orange (#e67e22)
+- **Chart_System**: The visualization components for displaying data in charts and graphs
+- **Calendar_Widget**: The events calendar component showing scheduled activities
+- **Stats_Cards**: The summary cards displaying key metrics at the top of the dashboard
 
 ## Requirements
 
-### Requirement 1: Remove My Profile Page
+### Requirement 1: Modern Sidebar Navigation
 
-**User Story:** As a system administrator, I want to remove the My Profile page from the application, so that the navigation is simplified and focused on core HR functionality.
-
-#### Acceptance Criteria
-
-1. WHEN the application loads, THE Navigation_System SHALL NOT display a "My Profile" menu item in the sidebar
-2. WHEN a user attempts to navigate to "/profile", THE UI_System SHALL redirect to the dashboard
-3. THE UI_System SHALL remove all profile-related route definitions from the application
-
-### Requirement 2: Enhanced Visual Theme
-
-**User Story:** As a user, I want a beautiful, modern interface that reflects Haramaya University's brand identity, so that the application feels professional and aligned with the institution.
+**User Story:** As a user, I want a modern sidebar with clear icons and labels, so that I can easily navigate between different sections of the application.
 
 #### Acceptance Criteria
 
-1. THE Theme_Engine SHALL use Haramaya University's primary green (#1e5631) as the dominant accent color
-2. THE Theme_Engine SHALL incorporate gold/orange (#e67e22) as a secondary accent for highlights and call-to-action elements
-3. THE Theme_Engine SHALL implement smooth gradient backgrounds using brand colors
-4. THE Theme_Engine SHALL apply subtle shadows and depth effects to create visual hierarchy
-5. THE Theme_Engine SHALL use modern, rounded corners and smooth transitions throughout
+1. THE Navigation_System SHALL display a sidebar with a dark blue-gray background (#3d4f5c or similar)
+2. THE Navigation_System SHALL display a logo and "SCHOOL" branding at the top of the sidebar
+3. THE Navigation_System SHALL include menu items for Dashboard, Students, Teachers, Attendance, Courses, Exam, and Payment
+4. THE Navigation_System SHALL display Settings and Logout options at the bottom of the sidebar
+5. WHEN a menu item is active, THE UI_System SHALL highlight it with a white/light background and rounded corners
+6. WHEN a user hovers over a menu item, THE UI_System SHALL display a subtle hover effect
+7. THE Navigation_System SHALL display appropriate icons next to each menu label
 
-### Requirement 3: Enhanced Sidebar Design
+### Requirement 2: Enhanced Header with Search and Notifications
 
-**User Story:** As a user, I want an attractive sidebar navigation, so that I can easily navigate the application with visual delight.
-
-#### Acceptance Criteria
-
-1. THE Navigation_System SHALL display a sidebar with a gradient background using brand colors
-2. WHEN a user hovers over a sidebar menu item, THE UI_System SHALL display a smooth highlight animation
-3. WHEN a menu item is active, THE UI_System SHALL display a prominent visual indicator with brand accent colors
-4. THE Navigation_System SHALL display icons alongside text labels for each menu item
-5. THE UI_System SHALL apply glassmorphism or modern card effects to sidebar elements
-
-### Requirement 4: Enhanced Navbar Design
-
-**User Story:** As a user, I want a professional header that prominently displays the Haramaya University branding, so that the institutional identity is clear.
+**User Story:** As a user, I want a clean header with search functionality and notifications, so that I can quickly find information and stay updated.
 
 #### Acceptance Criteria
 
-1. THE UI_System SHALL display the Haramaya University logo prominently in the navbar
-2. THE UI_System SHALL display "Haramaya University" and "Employee Management System" text with elegant typography
-3. THE Theme_Engine SHALL apply a gradient or solid brand color background to the navbar
-4. THE UI_System SHALL display user information with a modern, clean design
-5. WHEN a user hovers over interactive navbar elements, THE UI_System SHALL provide visual feedback
+1. THE UI_System SHALL display "Dashboard" as the page title in the header
+2. THE UI_System SHALL include a search bar with placeholder text "Search for students/teachers/documents..."
+3. THE UI_System SHALL display a notification bell icon with a red badge showing unread count
+4. THE UI_System SHALL display a user avatar/profile picture in the top right corner
+5. THE UI_System SHALL use a light background color for the header area
+6. THE UI_System SHALL apply appropriate spacing and alignment for header elements
 
-### Requirement 5: Enhanced Page Content Styling
+### Requirement 3: Dashboard Statistics Cards
 
-**User Story:** As a user, I want page content areas to be visually appealing with modern card designs, so that information is easy to read and the interface feels polished.
-
-#### Acceptance Criteria
-
-1. THE Theme_Engine SHALL apply card-based layouts with subtle shadows and rounded corners
-2. THE Theme_Engine SHALL use appropriate spacing and padding for comfortable reading
-3. THE UI_System SHALL display placeholder pages with attractive styling consistent with the brand
-4. THE Theme_Engine SHALL implement hover effects on interactive cards and elements
-
-### Requirement 6: Responsive and Accessible Design
-
-**User Story:** As a user on various devices, I want the redesigned interface to work well on different screen sizes, so that I can use the system from any device.
+**User Story:** As a user, I want to see key statistics at a glance, so that I can quickly understand the current state of the system.
 
 #### Acceptance Criteria
 
-1. THE UI_System SHALL maintain visual appeal on desktop, tablet, and mobile screen sizes
-2. THE Theme_Engine SHALL adjust layout and spacing appropriately for smaller screens
-3. THE UI_System SHALL maintain sufficient color contrast for accessibility
-4. THE UI_System SHALL preserve all existing functionality while applying new styling
+1. THE Dashboard_System SHALL display four statistics cards in a horizontal row
+2. THE Stats_Cards SHALL show Students count with an appropriate icon
+3. THE Stats_Cards SHALL show Teachers count with an appropriate icon
+4. THE Stats_Cards SHALL show Parents count with an appropriate icon
+5. THE Stats_Cards SHALL show Earnings amount with currency formatting and an appropriate icon
+6. WHEN displaying statistics, THE Dashboard_System SHALL use distinct pastel background colors for each card
+7. THE Stats_Cards SHALL display the metric value prominently with a larger font size
+8. THE Stats_Cards SHALL include descriptive labels below each metric value
+
+### Requirement 4: Total Earnings Chart
+
+**User Story:** As a user, I want to visualize earnings data over time, so that I can track financial trends.
+
+#### Acceptance Criteria
+
+1. THE Dashboard_System SHALL display a "Total Earnings" chart widget
+2. THE Chart_System SHALL render a bar chart showing monthly earnings data
+3. THE Chart_System SHALL display two data series: "Earnings" and "Expense"
+4. THE Chart_System SHALL use distinct colors for each data series (dark blue/navy and gold/yellow)
+5. THE Chart_System SHALL include a year selector dropdown (e.g., "2022")
+6. THE Chart_System SHALL display month labels on the x-axis (Jan through Dec)
+7. THE Chart_System SHALL include a legend showing "Earnings" and "Expense"
+8. THE Chart_System SHALL include a menu icon (three dots) for additional options
+
+### Requirement 5: Events Calendar Widget
+
+**User Story:** As a user, I want to see upcoming events in a calendar view, so that I can stay informed about scheduled activities.
+
+#### Acceptance Criteria
+
+1. THE Dashboard_System SHALL display an "Events Calendar" widget
+2. THE Calendar_Widget SHALL show the current month and year (e.g., "January 2023")
+3. THE Calendar_Widget SHALL display upcoming events with dates and titles
+4. THE Calendar_Widget SHALL highlight specific dates with colored circles (blue, red, etc.)
+5. THE Calendar_Widget SHALL show navigation arrows to view different months
+6. THE Calendar_Widget SHALL display a full month calendar grid with day numbers
+7. THE Calendar_Widget SHALL use different colors to indicate different event types
+8. THE Calendar_Widget SHALL include a menu icon (three dots) for additional options
+
+### Requirement 6: Top Performer Table
+
+**User Story:** As a user, I want to see top performing students, so that I can recognize and track high achievers.
+
+#### Acceptance Criteria
+
+1. THE Dashboard_System SHALL display a "Top Performer" widget
+2. THE Dashboard_System SHALL include tabs for "Week", "Month", and "Year" views
+3. THE Dashboard_System SHALL display a table with columns: Photo, Name, ID Number, Standard, and Rank
+4. THE Dashboard_System SHALL show student profile pictures in the Photo column
+5. THE Dashboard_System SHALL display performance percentage with a visual progress bar
+6. THE Dashboard_System SHALL use color coding for performance levels (red for lower, yellow for medium)
+7. THE Dashboard_System SHALL include a menu icon (three dots) for additional options
+
+### Requirement 7: Attendance Visualization
+
+**User Story:** As a user, I want to see attendance statistics visually, so that I can quickly understand attendance rates.
+
+#### Acceptance Criteria
+
+1. THE Dashboard_System SHALL display an "Attendance" widget
+2. THE Chart_System SHALL render a circular/donut chart showing attendance data
+3. THE Dashboard_System SHALL display "Students" attendance percentage (e.g., "84%")
+4. THE Dashboard_System SHALL display "Teachers" attendance percentage (e.g., "91%")
+5. THE Chart_System SHALL use distinct colors for Students and Teachers data
+6. THE Chart_System SHALL use a yellow/gold color scheme for the visualization
+7. THE Dashboard_System SHALL include a menu icon (three dots) for additional options
+
+### Requirement 8: Promotional Card Widget
+
+**User Story:** As a user, I want to see promotional or informational cards, so that I can discover new features or community resources.
+
+#### Acceptance Criteria
+
+1. THE Dashboard_System SHALL display a promotional card with a dark blue background
+2. THE UI_System SHALL display the text "Join the community and find out more..."
+3. THE UI_System SHALL include an "Explore now" call-to-action button
+4. THE UI_System SHALL display a decorative graphic or icon on the card
+5. THE UI_System SHALL apply rounded corners and appropriate padding to the card
+
+### Requirement 9: Responsive Grid Layout
+
+**User Story:** As a user, I want the dashboard widgets to be organized in a clean grid layout, so that information is easy to scan and visually balanced.
+
+#### Acceptance Criteria
+
+1. THE Dashboard_System SHALL arrange widgets in a responsive grid layout
+2. THE Dashboard_System SHALL display statistics cards in a single row at the top
+3. THE Dashboard_System SHALL position the earnings chart on the left side below stats
+4. THE Dashboard_System SHALL position the events calendar on the right side
+5. THE Dashboard_System SHALL position the top performer table below the earnings chart
+6. THE Dashboard_System SHALL position the attendance chart and promotional card on the right side
+7. WHEN the viewport width changes, THE UI_System SHALL adjust the grid layout appropriately
+
+### Requirement 10: Modern Visual Styling
+
+**User Story:** As a user, I want a modern, clean interface with appropriate colors and spacing, so that the application is pleasant to use.
+
+#### Acceptance Criteria
+
+1. THE UI_System SHALL use a light gray or off-white background for the main content area
+2. THE UI_System SHALL apply white backgrounds to all widget cards
+3. THE UI_System SHALL use rounded corners on all cards and interactive elements
+4. THE UI_System SHALL apply subtle shadows to cards for depth
+5. THE UI_System SHALL use consistent spacing between widgets and elements
+6. THE UI_System SHALL use a modern, readable font family throughout
+7. THE UI_System SHALL apply smooth transitions for hover and interactive states
+8. THE UI_System SHALL maintain sufficient color contrast for accessibility
+

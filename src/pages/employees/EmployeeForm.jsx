@@ -8,8 +8,8 @@ const EmployeeForm = () => {
   const navigate = useNavigate();
   const [departments, setDepartments] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [generatedEmployeeId, setGeneratedEmployeeId] = useState(null);
   const [formData, setFormData] = useState({
-    employee_id: '',
     first_name: '',
     last_name: '',
     gender: 'male',
@@ -49,22 +49,17 @@ const EmployeeForm = () => {
     e.preventDefault();
     setLoading(true);
 
-    console.log("Form submitted with data:", formData);
-
     try {
-      console.log("Calling employeeService.create...");
       const response = await employeeService.create(formData);
-      console.log("Response received:", response);
       
       if (response.success) {
-        alert('✅ Employee created successfully!');
+        setGeneratedEmployeeId(response.data.employee_id);
+        alert(`✅ Employee created successfully! Employee ID: ${response.data.employee_id}`);
         navigate('/employees');
       } else {
         alert('❌ Error: ' + (response.message || 'Failed to create employee'));
-        console.error("Server returned error:", response);
       }
     } catch (error) {
-      console.error("Caught error:", error);
       alert('❌ Failed: ' + (error.message || 'Network error'));
     } finally {
       setLoading(false);
@@ -82,28 +77,6 @@ const EmployeeForm = () => {
 
       <div className="card">
         <form onSubmit={handleSubmit} className="employee-form">
-          <div className="form-row">
-            <div className="form-group">
-              <label>Employee ID *</label>
-              <input
-                type="text"
-                name="employee_id"
-                value={formData.employee_id}
-                onChange={handleChange}
-                required
-                placeholder="e.g., HU002"
-              />
-            </div>
-
-            <div className="form-group">
-              <label>Gender *</label>
-              <select name="gender" value={formData.gender} onChange={handleChange} required>
-                <option value="male">Male</option>
-                <option value="female">Female</option>
-              </select>
-            </div>
-          </div>
-
           <div className="form-row">
             <div className="form-group">
               <label>First Name *</label>
@@ -130,6 +103,14 @@ const EmployeeForm = () => {
 
           <div className="form-row">
             <div className="form-group">
+              <label>Gender *</label>
+              <select name="gender" value={formData.gender} onChange={handleChange} required>
+                <option value="male">Male</option>
+                <option value="female">Female</option>
+              </select>
+            </div>
+
+            <div className="form-group">
               <label>Date of Birth *</label>
               <input
                 type="date"
@@ -139,7 +120,9 @@ const EmployeeForm = () => {
                 required
               />
             </div>
+          </div>
 
+          <div className="form-row">
             <div className="form-group">
               <label>Phone *</label>
               <input
@@ -151,9 +134,7 @@ const EmployeeForm = () => {
                 placeholder="+251911234567"
               />
             </div>
-          </div>
 
-          <div className="form-row">
             <div className="form-group">
               <label>Email *</label>
               <input
@@ -165,7 +146,9 @@ const EmployeeForm = () => {
                 placeholder="name@hu.edu.et"
               />
             </div>
+          </div>
 
+          <div className="form-row">
             <div className="form-group">
               <label>Position *</label>
               <input
@@ -177,9 +160,7 @@ const EmployeeForm = () => {
                 placeholder="e.g., Senior Lecturer"
               />
             </div>
-          </div>
 
-          <div className="form-row">
             <div className="form-group">
               <label>Department *</label>
               <select name="department_id" value={formData.department_id} onChange={handleChange} required>
@@ -189,7 +170,9 @@ const EmployeeForm = () => {
                 ))}
               </select>
             </div>
+          </div>
 
+          <div className="form-row">
             <div className="form-group">
               <label>Employment Type *</label>
               <select name="employment_type" value={formData.employment_type} onChange={handleChange} required>
@@ -198,9 +181,7 @@ const EmployeeForm = () => {
                 <option value="support">Support</option>
               </select>
             </div>
-          </div>
 
-          <div className="form-row">
             <div className="form-group">
               <label>Hire Date *</label>
               <input
@@ -211,7 +192,9 @@ const EmployeeForm = () => {
                 required
               />
             </div>
+          </div>
 
+          <div className="form-row">
             <div className="form-group">
               <label>Salary *</label>
               <input
