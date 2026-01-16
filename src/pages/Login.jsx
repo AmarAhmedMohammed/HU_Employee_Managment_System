@@ -4,14 +4,6 @@ import { useAuth } from "../context/AuthContext";
 import "./Login.css";
 
 const Login = () => {
-  const [data, setData] = useState([]);
-
-  useEffect(() => {
-    fetch("http://localhost:5000/login-user")
-      .then((res) => res.json())
-      .then((data) => setData(data));
-  }, []);
-
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -92,18 +84,6 @@ const Login = () => {
             {loading ? "Signing in..." : "Sign In"}
           </button>
         </form>
-
-        <div className="login-footer">
-          <p className="login-help">
-            Default credentials (from seed data):
-            <br />
-            {/* <strong>Admin:</strong> abebe.kebede@hu.edu.et / password123<br /> */}
-            <strong>Admin:</strong>{" "}
-            {data.length > 0 ? data[0].email : "Loading..."} /{" "}
-            {data.length > 0 ? data[0].password : "Loading..."}
-            <br />
-          </p>
-        </div>
       </div>
     </div>
   );

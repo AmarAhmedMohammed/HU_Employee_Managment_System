@@ -424,4 +424,5 @@ const port = 5000;
 app.listen(port, () => {
   console.log(`\nServer: http://localhost:${port}`);
   console.log(`Setup: http://localhost:${port}/create-tables`);
+  // console.log(`Seed: http://localhost:${port}/seed-data`);
 });
