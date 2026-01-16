@@ -10,9 +10,9 @@ app.use(express.json());
 
 const connection = mysql.createConnection({
   host: "localhost",
-  user: "hu_employee_system",
+  user: "group_1",
   password: "12345678",
-  database: "hu_employee_system",
+  database: "haramaya_employee_management",
 });
 
 connection.connect((err) => {
@@ -49,33 +49,13 @@ app.get("/create-tables", (req, res) => {
       status ENUM('active','inactive') DEFAULT 'active',
       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
       FOREIGN KEY (department_id) REFERENCES departments(id))`,
-    `CREATE TABLE IF NOT EXISTS users (
-      id INT PRIMARY KEY AUTO_INCREMENT, employee_id INT NOT NULL UNIQUE,
-      email VARCHAR(100) UNIQUE NOT NULL, password VARCHAR(255) NOT NULL,
-      role ENUM('admin','hr_officer','department_head','finance_officer','employee') DEFAULT 'employee',
-      status ENUM('active','inactive') DEFAULT 'active', last_login TIMESTAMP NULL,
-      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-      FOREIGN KEY (employee_id) REFERENCES employees(id))`,
     `CREATE TABLE IF NOT EXISTS leave_requests (
       id INT PRIMARY KEY AUTO_INCREMENT, employee_id INT NOT NULL,
       leave_type ENUM('annual','sick','maternity','paternity','unpaid') NOT NULL,
       start_date DATE NOT NULL, end_date DATE NOT NULL, days_requested INT NOT NULL,
       reason TEXT NOT NULL, status ENUM('pending','approved','rejected') DEFAULT 'pending',
       approved_by INT NULL, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-      FOREIGN KEY (employee_id) REFERENCES employees(id))`,
-    `CREATE TABLE IF NOT EXISTS attendance (
-      id INT PRIMARY KEY AUTO_INCREMENT, employee_id INT NOT NULL, date DATE NOT NULL,
-      status ENUM('present','absent','late') NOT NULL, check_in_time TIME NULL,
-      check_out_time TIME NULL, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-      FOREIGN KEY (employee_id) REFERENCES employees(id), UNIQUE KEY (employee_id, date))`,
-    `CREATE TABLE IF NOT EXISTS performance_reviews (
-      id INT PRIMARY KEY AUTO_INCREMENT, employee_id INT NOT NULL, reviewer_id INT NOT NULL,
-      review_period ENUM('quarterly','annual') NOT NULL, rating INT NOT NULL,
-      strengths TEXT, improvements TEXT, goals TEXT, comments TEXT, review_date DATE NOT NULL,
-      status ENUM('draft','submitted','acknowledged') DEFAULT 'draft',
-      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-      FOREIGN KEY (employee_id) REFERENCES employees(id),
-      FOREIGN KEY (reviewer_id) REFERENCES employees(id))`
+      FOREIGN KEY (employee_id) REFERENCES employees(id))`
   ];
   tables.forEach(t => connection.query(t, err => { if(err) console.log(err); }));
   res.send("✅ All Tables Created");
@@ -442,7 +422,6 @@ app.get("/api/reports/leave-summary", (req, res) => {
 
 const port = 5000;
 app.listen(port, () => {
-  console.log(`\n🚀 Server: http://localhost:${port}`);
-  console.log(`📦 Setup: http://localhost:${port}/create-tables`);
-  console.log(`🌱 Seed: http://localhost:${port}/seed-data`);
+  console.log(`\nServer: http://localhost:${port}`);
+  console.log(`Setup: http://localhost:${port}/create-tables`);
 });
