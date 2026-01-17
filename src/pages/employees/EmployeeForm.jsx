@@ -13,12 +13,10 @@ const EmployeeForm = ({ userType }) => {
     first_name: "",
     last_name: "",
     gender: "male",
-    date_of_birth: "",
     phone: "",
     email: "",
     position: userType === "head" ? "Department Head" : "",
     department_id: "",
-    employment_type: "academic",
     hire_date: "",
     salary: "",
   });
@@ -132,11 +130,11 @@ const EmployeeForm = ({ userType }) => {
             </div>
 
             <div className="form-group">
-              <label>Date of Birth *</label>
+              <label>Hire Date *</label>
               <input
                 type="date"
-                name="date_of_birth"
-                value={formData.date_of_birth}
+                name="hire_date"
+                value={formData.hire_date}
                 onChange={handleChange}
                 required
               />
@@ -197,33 +195,6 @@ const EmployeeForm = ({ userType }) => {
                   </option>
                 ))}
               </select>
-            </div>
-          </div>
-
-          <div className="form-row">
-            <div className="form-group">
-              <label>Employment Type *</label>
-              <select
-                name="employment_type"
-                value={formData.employment_type}
-                onChange={handleChange}
-                required
-              >
-                <option value="academic">Academic</option>
-                <option value="admin">Admin</option>
-                <option value="support">Support</option>
-              </select>
-            </div>
-
-            <div className="form-group">
-              <label>Hire Date *</label>
-              <input
-                type="date"
-                name="hire_date"
-                value={formData.hire_date}
-                onChange={handleChange}
-                required
-              />
             </div>
           </div>
 

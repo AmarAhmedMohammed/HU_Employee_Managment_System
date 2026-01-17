@@ -18,7 +18,32 @@ const connection = mysql.createConnection({
 connection.connect((err) => {
   if (err) console.log(err);
   console.log("✅ Connected to MySQL");
+  runSchemaMigrations();
 });
+
+const runSchemaMigrations = () => {
+  // List of columns to drop from 'employees' table
+  const columnsToDrop = ["date_of_birth", "employment_type"];
+
+  columnsToDrop.forEach((col) => {
+    connection.query(
+      "SELECT COUNT(*) as count FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = 'haramaya_employee_management' AND TABLE_NAME = 'employees' AND COLUMN_NAME = ?",
+      [col],
+      (err, results) => {
+        if (!err && results[0].count > 0) {
+          console.log(`Column ${col} exists, dropping...`);
+          connection.query(
+            `ALTER TABLE employees DROP COLUMN ${col}`,
+            (err) => {
+              if (err) console.error(`Error dropping ${col}:`, err);
+              else console.log(`✅ Successfully dropped ${col}`);
+            }
+          );
+        }
+      }
+    );
+  });
+};
 
 app.get("/", (req, res) => res.send("HU Employee Management System API"));
 
@@ -41,12 +66,11 @@ app.get("/create-tables", (req, res) => {
     `CREATE TABLE IF NOT EXISTS employees (
       id INT PRIMARY KEY AUTO_INCREMENT, employee_id VARCHAR(20) UNIQUE NOT NULL,
       first_name VARCHAR(50) NOT NULL, last_name VARCHAR(50) NOT NULL,
-      gender ENUM('male','female') NOT NULL, date_of_birth DATE NOT NULL,
+      gender ENUM('male','female') NOT NULL,
       phone VARCHAR(20) NOT NULL, email VARCHAR(100) UNIQUE NOT NULL,
       position VARCHAR(100) NOT NULL, department_id INT,
-      employment_type ENUM('academic','admin','support') NOT NULL,
       hire_date DATE NOT NULL, salary DECIMAL(12,2) NOT NULL,
-      status ENUM('active','inactive') DEFAULT 'active',
+      status ENUM('active') DEFAULT 'active',
       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
       FOREIGN KEY (department_id) REFERENCES departments(id))`,
     `CREATE TABLE IF NOT EXISTS leave_requests (
@@ -100,7 +124,7 @@ app.get("/seed-data", (req, res) => {
 
   // Create sample employee with HU ID format
   connection.query(
-    "INSERT IGNORE INTO employees (employee_id,first_name,last_name,gender,date_of_birth,phone,email,position,department_id,employment_type,hire_date,salary) VALUES ('HU001','Abebe','Kebede','male','1975-03-15','+251911234567','abebe.kebede@hu.edu.et','HR Director',2,'admin','2010-01-15',45000.00)",
+    "INSERT IGNORE INTO employees (employee_id,first_name,last_name,gender,phone,email,position,department_id,hire_date,salary) VALUES ('HU001','Abebe','Kebede','male','+251911234567','abebe.kebede@hu.edu.et','HR Director',2,'2010-01-15',45000.00)",
     (err, r) => {
       if (!err && r?.insertId) {
         connection.query(
@@ -408,6 +432,19 @@ app.get("/api/employees", (req, res) => {
     params.push(department_id);
   }
 
+  const { search } = req.query;
+  if (search) {
+    const searchTerm = `%${search}%`;
+    if (department_id) {
+      query +=
+        " AND (e.first_name LIKE ? OR e.last_name LIKE ? OR e.email LIKE ? OR e.phone LIKE ? OR e.employee_id LIKE ?)";
+    } else {
+      query +=
+        " WHERE (e.first_name LIKE ? OR e.last_name LIKE ? OR e.email LIKE ? OR e.phone LIKE ? OR e.employee_id LIKE ?)";
+    }
+    params.push(searchTerm, searchTerm, searchTerm, searchTerm, searchTerm);
+  }
+
   query += " ORDER BY e.created_at DESC";
 
   // Get all employees - admins are now in separate admins table
@@ -450,12 +487,10 @@ app.post("/api/employees", (req, res) => {
     first_name,
     last_name,
     gender,
-    date_of_birth,
     phone,
     email,
     position,
     department_id,
-    employment_type,
     hire_date,
     salary,
     role,
@@ -475,18 +510,16 @@ app.post("/api/employees", (req, res) => {
 
       // Insert employee with generated ID
       connection.query(
-        "INSERT INTO employees (employee_id, first_name, last_name, gender, date_of_birth, phone, email, position, department_id, employment_type, hire_date, salary) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+        "INSERT INTO employees (employee_id, first_name, last_name, gender, phone, email, position, department_id, hire_date, salary) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
         [
           newEmployeeId,
           first_name,
           last_name,
           gender,
-          date_of_birth,
           phone,
           email,
           position,
           department_id || null,
-          employment_type,
           hire_date,
           salary || 0,
         ],
@@ -615,14 +648,23 @@ app.delete("/api/employees/:id", (req, res) => {
 
 // DEPARTMENTS
 app.get("/api/departments", (req, res) => {
-  connection.query(
-    "SELECT d.*, CONCAT(e.first_name, ' ', e.last_name) as head_name, (SELECT COUNT(*) FROM employees WHERE department_id = d.id AND status = 'active') as employee_count FROM departments d LEFT JOIN employees e ON d.head_id = e.id ORDER BY d.name",
-    (err, results) => {
-      if (err)
-        return res.status(500).json({ success: false, message: "Failed" });
-      res.json({ success: true, data: results, count: results.length });
-    }
-  );
+  const { search } = req.query;
+  let query =
+    "SELECT d.*, CONCAT(e.first_name, ' ', e.last_name) as head_name, (SELECT COUNT(*) FROM employees WHERE department_id = d.id AND status = 'active') as employee_count FROM departments d LEFT JOIN employees e ON d.head_id = e.id";
+  const params = [];
+
+  if (search) {
+    query += " WHERE d.name LIKE ? OR d.description LIKE ?";
+    const searchTerm = `%${search}%`;
+    params.push(searchTerm, searchTerm);
+  }
+
+  query += " ORDER BY d.name";
+
+  connection.query(query, params, (err, results) => {
+    if (err) return res.status(500).json({ success: false, message: "Failed" });
+    res.json({ success: true, data: results, count: results.length });
+  });
 });
 
 app.get("/api/departments/:id", (req, res) => {
@@ -689,6 +731,19 @@ app.get("/api/leave-requests", (req, res) => {
   if (employee_id) {
     query += " WHERE lr.employee_id = ?";
     params.push(employee_id);
+  }
+
+  const { search } = req.query;
+  if (search) {
+    const searchTerm = `%${search}%`;
+    if (employee_id) {
+      query +=
+        " AND (e.first_name LIKE ? OR e.last_name LIKE ? OR lr.leave_type LIKE ? OR lr.status LIKE ?)";
+    } else {
+      query +=
+        " WHERE (e.first_name LIKE ? OR e.last_name LIKE ? OR lr.leave_type LIKE ? OR lr.status LIKE ?)";
+    }
+    params.push(searchTerm, searchTerm, searchTerm, searchTerm);
   }
 
   query += " ORDER BY lr.created_at DESC";
@@ -978,6 +1033,6 @@ app.get("/api/reports/leave-summary", (req, res) => {
 const port = 5000;
 app.listen(port, () => {
   console.log(`\nServer: http://localhost:${port}`);
-  console.log(`Setup: http://localhost:${port}/create-tables`);
-  console.log(`Seed: http://localhost:${port}/seed-data`);
+  // console.log(`Setup: http://localhost:${port}/create-tables`);
+  // console.log(`Seed: http://localhost:${port}/seed-data`);
 });

@@ -231,10 +231,7 @@ const EmployeeList = ({ filterRole }) => {
                   <label>Gender</label>
                   <span>{selectedEmployee.gender}</span>
                 </div>
-                <div className="detail-item">
-                  <label>Date of Birth</label>
-                  <span>{selectedEmployee.date_of_birth}</span>
-                </div>
+
                 <div className="detail-item">
                   <label>Position</label>
                   <span>{selectedEmployee.position}</span>
@@ -243,12 +240,7 @@ const EmployeeList = ({ filterRole }) => {
                   <label>Department</label>
                   <span>{selectedEmployee.department_name || "N/A"}</span>
                 </div>
-                <div className="detail-item">
-                  <label>Employment Type</label>
-                  <span className="badge badge-info">
-                    {selectedEmployee.employment_type}
-                  </span>
-                </div>
+
                 <div className="detail-item">
                   <label>Hire Date</label>
                   <span>{selectedEmployee.hire_date}</span>

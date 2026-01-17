@@ -2,9 +2,15 @@
    Employee Dashboard Layout
    ============================================= */
 
+.employee-dashboard-container {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
 .employee-layout {
   display: flex;
-  min-height: 100vh;
+  flex: 1; /* Take remaining height */
   background-color: #f3f4f6;
   font-family: "Inter", sans-serif;
 }
@@ -16,12 +22,12 @@
   border-right: 1px solid #e5e7eb;
   display: flex;
   flex-direction: column;
-  position: sticky; /* Changed from fixed to sticky */
-  top: 100px;
-  height: calc(100vh - 100px); /* Adjusted height to account for top offset */
+  position: sticky;
+  top: 70px; /* Changed to 0 because Navbar is separate now, but wait, Navbar is sticky? */
+  height: calc(100vh - 64px); /* Navbar height approx */
   z-index: 50;
   transition: transform 0.3s ease;
-  flex-shrink: 0; /* Prevent sidebar from shrinking */
+  flex-shrink: 0;
 }
 
 /* ... existing inner sidebar styles ... */

@@ -1,16 +1,13 @@
-import { useState, useEffect } from 'react';
-import { useAuth } from '../../context/AuthContext';
-import leaveService from '../../services/leaveService';
-import employeeService from '../../services/employeeService';
-import './LeaveList.css';
+import { useState, useEffect } from "react";
+import { useAuth } from "../../context/AuthContext";
+import leaveService from "../../services/leaveService";
+import "./LeaveList.css";
 
 const LeaveList = () => {
   const { user } = useAuth();
   const [leaves, setLeaves] = useState([]);
-  const [employees, setEmployees] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [showForm, setShowForm] = useState(false);
-  const [formData, setFormData] = useState({ employee_id: '', leave_type: 'annual', start_date: '', end_date: '', reason: '' });
+  const [selectedLeave, setSelectedLeave] = useState(null);
 
   useEffect(() => {
     fetchData();
@@ -18,43 +15,36 @@ const LeaveList = () => {
 
   const fetchData = async () => {
     try {
-      const [leaveRes, empRes] = await Promise.all([leaveService.getAll(), employeeService.getAll()]);
+      const leaveRes = await leaveService.getAll();
       if (leaveRes.success) setLeaves(leaveRes.data);
-      if (empRes.success) setEmployees(empRes.data);
     } catch (error) {
-      console.error('Error:', error);
+      console.error("Error:", error);
     } finally {
       setLoading(false);
     }
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    try {
-      await leaveService.create(formData);
-      setShowForm(false);
-      setFormData({ employee_id: '', leave_type: 'annual', start_date: '', end_date: '', reason: '' });
-      fetchData();
-    } catch (error) {
-      console.error('Error:', error);
-    }
-  };
-
   const handleApprove = async (id) => {
     try {
-      await leaveService.update(id, { status: 'approved', approved_by: user.id });
+      await leaveService.update(id, {
+        status: "approved",
+        approved_by: user.id,
+      });
       fetchData();
     } catch (error) {
-      console.error('Error:', error);
+      console.error("Error:", error);
     }
   };
 
   const handleReject = async (id) => {
     try {
-      await leaveService.update(id, { status: 'rejected', approved_by: user.id });
+      await leaveService.update(id, {
+        status: "rejected",
+        approved_by: user.id,
+      });
       fetchData();
     } catch (error) {
-      console.error('Error:', error);
+      console.error("Error:", error);
     }
   };
 
@@ -64,55 +54,7 @@ const LeaveList = () => {
     <div>
       <div className="page-header">
         <h1>Leave Requests</h1>
-        <button className="btn btn-primary" onClick={() => setShowForm(true)}>+ New Request</button>
       </div>
-
-      {showForm && (
-        <div className="modal-overlay" onClick={() => setShowForm(false)}>
-          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-            <h2>New Leave Request</h2>
-            <form onSubmit={handleSubmit}>
-              <div className="form-group">
-                <label>Employee *</label>
-                <select required value={formData.employee_id} onChange={(e) => setFormData({...formData, employee_id: e.target.value})}>
-                  <option value="">Select Employee</option>
-                  {employees.map(emp => (
-                    <option key={emp.id} value={emp.id}>{emp.first_name} {emp.last_name}</option>
-                  ))}
-                </select>
-              </div>
-              <div className="form-group">
-                <label>Leave Type *</label>
-                <select required value={formData.leave_type} onChange={(e) => setFormData({...formData, leave_type: e.target.value})}>
-                  <option value="annual">Annual</option>
-                  <option value="sick">Sick</option>
-                  <option value="maternity">Maternity</option>
-                  <option value="paternity">Paternity</option>
-                  <option value="unpaid">Unpaid</option>
-                </select>
-              </div>
-              <div className="form-row">
-                <div className="form-group">
-                  <label>Start Date *</label>
-                  <input type="date" required value={formData.start_date} onChange={(e) => setFormData({...formData, start_date: e.target.value})} />
-                </div>
-                <div className="form-group">
-                  <label>End Date *</label>
-                  <input type="date" required value={formData.end_date} onChange={(e) => setFormData({...formData, end_date: e.target.value})} />
-                </div>
-              </div>
-              <div className="form-group">
-                <label>Reason *</label>
-                <textarea required value={formData.reason} onChange={(e) => setFormData({...formData, reason: e.target.value})} />
-              </div>
-              <div className="form-actions">
-                <button type="button" className="btn btn-secondary" onClick={() => setShowForm(false)}>Cancel</button>
-                <button type="submit" className="btn btn-primary">Submit</button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
 
       <div className="table-container">
         <table>
@@ -128,27 +70,135 @@ const LeaveList = () => {
             </tr>
           </thead>
           <tbody>
-            {leaves.map(leave => (
+            {leaves.map((leave) => (
               <tr key={leave.id}>
-                <td><strong>{leave.employee_name}</strong><br/><small>{leave.emp_code}</small></td>
-                <td><span className="badge badge-info">{leave.leave_type}</span></td>
+                <td>
+                  <strong>{leave.employee_name}</strong>
+                  <br />
+                  <small>{leave.emp_code}</small>
+                </td>
+                <td>
+                  <span className="badge badge-info">{leave.leave_type}</span>
+                </td>
                 <td>{new Date(leave.start_date).toLocaleDateString()}</td>
                 <td>{new Date(leave.end_date).toLocaleDateString()}</td>
                 <td>{leave.days_requested}</td>
-                <td><span className={`badge badge-${leave.status === 'approved' ? 'success' : leave.status === 'rejected' ? 'error' : 'warning'}`}>{leave.status}</span></td>
                 <td>
-                  {leave.status === 'pending' && (user.role === 'admin' || user.role === 'hr_officer') && (
-                    <>
-                      <button className="btn-icon" onClick={() => handleApprove(leave.id)} title="Approve">✓</button>
-                      <button className="btn-icon delete" onClick={() => handleReject(leave.id)} title="Reject">✗</button>
-                    </>
-                  )}
+                  <span
+                    className={`badge badge-${
+                      leave.status === "approved"
+                        ? "success"
+                        : leave.status === "rejected"
+                        ? "error"
+                        : "warning"
+                    }`}
+                  >
+                    {leave.status}
+                  </span>
+                </td>
+                <td>
+                  {leave.status === "pending" &&
+                    (user.role === "admin" || user.role === "hr_officer") && (
+                      <>
+                        <button
+                          className="btn-icon"
+                          onClick={() => handleApprove(leave.id)}
+                          title="Approve"
+                        >
+                          ✓
+                        </button>
+                        <button
+                          className="btn-icon delete"
+                          onClick={() => handleReject(leave.id)}
+                          title="Reject"
+                        >
+                          ✗
+                        </button>
+                      </>
+                    )}
+                  <button
+                    className="btn-icon"
+                    onClick={() => setSelectedLeave(leave)}
+                    title="View Details"
+                    style={{ marginLeft: "5px" }}
+                  >
+                    👁️
+                  </button>
                 </td>
               </tr>
             ))}
           </tbody>
         </table>
       </div>
+
+      {selectedLeave && (
+        <div className="modal-overlay" onClick={() => setSelectedLeave(null)}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h2>Leave Request Details</h2>
+              <button
+                className="modal-close"
+                onClick={() => setSelectedLeave(null)}
+              >
+                &times;
+              </button>
+            </div>
+            <div className="modal-body">
+              <div className="detail-row">
+                <strong>Employee:</strong> {selectedLeave.employee_name} (
+                {selectedLeave.emp_code})
+              </div>
+              <div className="detail-row">
+                <strong>Type:</strong> {selectedLeave.leave_type}
+              </div>
+              <div className="detail-row">
+                <strong>Dates:</strong>{" "}
+                {new Date(selectedLeave.start_date).toLocaleDateString()} -{" "}
+                {new Date(selectedLeave.end_date).toLocaleDateString()} (
+                {selectedLeave.days_requested} days)
+              </div>
+              <div className="detail-row">
+                <strong>Status:</strong>{" "}
+                <span
+                  className={`badge badge-${
+                    selectedLeave.status === "approved"
+                      ? "success"
+                      : selectedLeave.status === "rejected"
+                      ? "error"
+                      : "warning"
+                  }`}
+                >
+                  {selectedLeave.status}
+                </span>
+              </div>
+              <div className="detail-row" style={{ marginTop: "1rem" }}>
+                <strong>Reason:</strong>
+                <p
+                  style={{
+                    marginTop: "0.5rem",
+                    padding: "0.75rem",
+                    background: "#f9fafb",
+                    borderRadius: "6px",
+                    border: "1px solid #e5e7eb",
+                    maxHeight: "300px",
+                    overflowY: "auto",
+                  }}
+                >
+                  {selectedLeave.reason}
+                </p>
+              </div>
+            </div>
+            <div className="modal-footer">
+              <button
+                className="btn btn-secondary"
+                onClick={() => setSelectedLeave(null)}
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

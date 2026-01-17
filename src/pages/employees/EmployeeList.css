@@ -142,7 +142,6 @@
   }
 }
 
-
 /* =============================================
    Employee Details Modal Styles
    ============================================= */
@@ -182,6 +181,11 @@
   flex-direction: column;
 }
 
+[data-theme="dark"] .modal-content {
+  background: #1e293b;
+  border: 1px solid #334155;
+}
+
 @keyframes slideUp {
   from {
     opacity: 0;
@@ -207,7 +211,7 @@
   margin: 0;
   font-size: 1.25rem;
   font-weight: 600;
-  color: red;
+  color: #fff;
 }
 
 .modal-close {
@@ -247,8 +251,23 @@
   gap: 0.25rem;
   padding: 0.5rem;
   background: #f8fafc;
-  border-radius: 6px;
+  border-radius: 8px;
   border: 1px solid #e2e8f0;
+  min-width: 0; /* Prevents overflow in grid items */
+  overflow-wrap: break-word; /* Handles long text like emails */
+}
+
+[data-theme="dark"] .detail-item {
+  background: #0f172a;
+  border-color: #334155;
+}
+
+[data-theme="dark"] .detail-item label {
+  color: #94a3b8;
+}
+
+[data-theme="dark"] .detail-item span {
+  color: #f8fafc;
 }
 
 .detail-item label {
@@ -276,6 +295,11 @@
   border-radius: 0 0 16px 16px;
 }
 
+[data-theme="dark"] .modal-footer {
+  background: #0f172a;
+  border-top-color: #334155;
+}
+
 /* Responsive Modal */
 @media (max-width: 640px) {
   .modal-content {
@@ -283,6 +307,12 @@
     margin: 1rem;
   }
 
+  .employee-detail-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 480px) {
   .employee-detail-grid {
     grid-template-columns: 1fr;
   }
