@@ -1,23 +1,34 @@
-import { useState, useEffect } from 'react';
-import './Dashboard.css';
+import { useState, useEffect } from "react";
+import { useAuth } from "../../context/AuthContext";
+import EmployeeDashboard from "./EmployeeDashboard";
+import HeadDashboard from "./HeadDashboard";
+import "./Dashboard.css";
 
 const Dashboard = () => {
+  const { user } = useAuth();
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetchDashboardStats();
-  }, []);
+    // Only fetch admin stats if user is admin
+    if (user?.role === "admin") {
+      fetchDashboardStats();
+    } else {
+      setLoading(false);
+    }
+  }, [user]);
 
   const fetchDashboardStats = async () => {
     try {
-      const response = await fetch('http://localhost:5000/api/reports/dashboard-stats');
+      const response = await fetch(
+        "http://localhost:5000/api/reports/dashboard-stats"
+      );
       const data = await response.json();
       if (data.success) {
         setStats(data.data);
       }
     } catch (error) {
-      console.error('Failed to fetch stats:', error);
+      console.error("Failed to fetch stats:", error);
     } finally {
       setLoading(false);
     }
@@ -27,10 +38,20 @@ const Dashboard = () => {
     return <div className="loading">Loading dashboard...</div>;
   }
 
+  // ROLE-BASED RENDERING
+  if (user?.role === "employee") {
+    return <EmployeeDashboard />;
+  }
+
+  if (user?.role === "head") {
+    return <HeadDashboard />;
+  }
+
+  // DEFAULT / ADMIN DASHBOARD
   return (
     <div className="dashboard">
       <div className="dashboard-header">
-        <h1>Dashboard</h1>
+        <h1>Admin Dashboard</h1>
         <p>Welcome to Haramaya University Employee Management System</p>
       </div>
 
@@ -81,8 +102,10 @@ const Dashboard = () => {
           </div>
           <div className="quick-info">
             <div className="info-item">
-              <span className="info-label">Recent Hires (30 days):</span>
-              <span className="info-value">{stats?.recentHires || 0}</span>
+              <span className="info-label">Active Users</span>
+              <span className="info-value">
+                {stats?.todayPresent || 0} (Present Today)
+              </span>
             </div>
           </div>
         </div>

@@ -5,8 +5,11 @@
 .navbar {
   background-color: var(--color-white);
   box-shadow: var(--shadow-navbar);
-  position: sticky;
+  position: fixed;
   top: 0;
+  left: 0;
+  right: 0;
+  width: 100%;
   z-index: 100;
   border-bottom: 1px solid var(--border-light);
 }
@@ -138,7 +141,7 @@
   .navbar-brand {
     gap: 0.5rem;
   }
-  
+
   .user-info {
     display: none;
   }

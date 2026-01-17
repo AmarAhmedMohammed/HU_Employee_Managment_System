@@ -1,13 +1,13 @@
-import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import employeeService from '../../services/employeeService';
-import './EmployeeList.css';
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import employeeService from "../../services/employeeService";
+import "./EmployeeList.css";
 
-const EmployeeList = () => {
+const EmployeeList = ({ filterRole }) => {
   const navigate = useNavigate();
   const [employees, setEmployees] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [search, setSearch] = useState('');
+  const [search, setSearch] = useState("");
   const [selectedEmployee, setSelectedEmployee] = useState(null);
   const [showModal, setShowModal] = useState(false);
 
@@ -22,7 +22,7 @@ const EmployeeList = () => {
         setEmployees(response.data);
       }
     } catch (error) {
-      console.error('Failed to fetch employees:', error);
+      console.error("Failed to fetch employees:", error);
     } finally {
       setLoading(false);
     }
@@ -33,32 +33,42 @@ const EmployeeList = () => {
     fetchEmployees();
   };
 
+  const filteredEmployees = employees.filter((emp) => {
+    if (filterRole && emp.role !== filterRole) return false;
+    return true;
+  });
+
   const getStatusBadge = (status) => {
     const badges = {
-      active: 'badge-success',
-      inactive: 'badge-secondary',
-      on_leave: 'badge-warning',
-      terminated: 'badge-error'
+      active: "badge-success",
+      inactive: "badge-secondary",
+      on_leave: "badge-warning",
+      terminated: "badge-error",
     };
-    return `badge ${badges[status] || 'badge-secondary'}`;
+    return `badge ${badges[status] || "badge-secondary"}`;
   };
 
   const handleDelete = async (id) => {
-    if (window.confirm('Are you sure you want to delete this employee?')) {
+    if (window.confirm("Are you sure you want to delete this employee?")) {
       try {
-        console.log('Deleting employee with ID:', id);
+        console.log("Deleting employee with ID:", id);
         const response = await employeeService.delete(id);
-        console.log('Delete response:', response);
-        
+        console.log("Delete response:", response);
+
         if (response.success) {
-          alert('Employee deleted successfully');
+          alert("Employee deleted successfully");
           fetchEmployees(); // Refresh the list
         } else {
-          alert('Failed to delete employee: ' + (response.message || 'Unknown error'));
+          alert(
+            "Failed to delete employee: " +
+              (response.message || "Unknown error")
+          );
         }
       } catch (error) {
-        console.error('Delete error:', error);
-        alert('Failed to delete employee: ' + (error.message || 'Network error'));
+        console.error("Delete error:", error);
+        alert(
+          "Failed to delete employee: " + (error.message || "Network error")
+        );
       }
     }
   };
@@ -80,9 +90,16 @@ const EmployeeList = () => {
   return (
     <div className="employee-list">
       <div className="page-header">
-        <h1>Employee Management</h1>
-        <button onClick={() => navigate('/employees/add')} className="btn btn-primary">
-          <span>+ Add Employee</span>
+        <h1>
+          {filterRole === "head" ? "Department Heads" : "Employee Management"}
+        </h1>
+        <button
+          onClick={() =>
+            navigate(filterRole === "head" ? "/heads/add" : "/employees/add")
+          }
+          className="btn btn-primary"
+        >
+          <span>+ Add {filterRole === "head" ? "Head" : "Employee"}</span>
         </button>
       </div>
 
@@ -117,20 +134,27 @@ const EmployeeList = () => {
               </tr>
             </thead>
             <tbody>
-              {employees.length === 0 ? (
+              {filteredEmployees.length === 0 ? (
                 <tr>
-                  <td colSpan="8" style={{ textAlign: 'center', padding: '2rem' }}>
-                    No employees found
+                  <td
+                    colSpan="8"
+                    style={{ textAlign: "center", padding: "2rem" }}
+                  >
+                    No{" "}
+                    {filterRole === "head" ? "department heads" : "employees"}{" "}
+                    found
                   </td>
                 </tr>
               ) : (
-                employees.map((employee) => (
+                filteredEmployees.map((employee) => (
                   <tr key={employee.id}>
                     <td>{employee.employee_id}</td>
-                    <td>{employee.first_name} {employee.last_name}</td>
+                    <td>
+                      {employee.first_name} {employee.last_name}
+                    </td>
                     <td>{employee.email}</td>
                     <td>{employee.position}</td>
-                    <td>{employee.department_name || 'N/A'}</td>
+                    <td>{employee.department_name || "N/A"}</td>
                     <td>
                       <span className="badge badge-info">
                         {employee.employment_type}
@@ -143,15 +167,15 @@ const EmployeeList = () => {
                     </td>
                     <td>
                       <div className="action-buttons">
-                        <button 
-                          className="btn-icon" 
+                        <button
+                          className="btn-icon"
                           title="View"
                           onClick={() => handleView(employee)}
                         >
                           👁️
                         </button>
-                        <button 
-                          className="btn-icon" 
+                        <button
+                          className="btn-icon"
                           title="Delete"
                           onClick={() => handleDelete(employee.id)}
                         >
@@ -167,7 +191,9 @@ const EmployeeList = () => {
         </div>
 
         <div className="table-footer">
-          <p>Total: <strong>{employees.length}</strong> employees</p>
+          <p>
+            Total: <strong>{employees.length}</strong> employees
+          </p>
         </div>
       </div>
 
@@ -176,8 +202,10 @@ const EmployeeList = () => {
         <div className="modal-overlay" onClick={closeModal}>
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
             <div className="modal-header">
-              <h2 style={{color: "white"}}>Employee Details</h2>
-              <button className="modal-close" onClick={closeModal}>×</button>
+              <h2 style={{ color: "white" }}>Employee Details</h2>
+              <button className="modal-close" onClick={closeModal}>
+                ×
+              </button>
             </div>
             <div className="modal-body">
               <div className="employee-detail-grid">
@@ -187,7 +215,9 @@ const EmployeeList = () => {
                 </div>
                 <div className="detail-item">
                   <label>Full Name</label>
-                  <span>{selectedEmployee.first_name} {selectedEmployee.last_name}</span>
+                  <span>
+                    {selectedEmployee.first_name} {selectedEmployee.last_name}
+                  </span>
                 </div>
                 <div className="detail-item">
                   <label>Email</label>
@@ -211,11 +241,13 @@ const EmployeeList = () => {
                 </div>
                 <div className="detail-item">
                   <label>Department</label>
-                  <span>{selectedEmployee.department_name || 'N/A'}</span>
+                  <span>{selectedEmployee.department_name || "N/A"}</span>
                 </div>
                 <div className="detail-item">
                   <label>Employment Type</label>
-                  <span className="badge badge-info">{selectedEmployee.employment_type}</span>
+                  <span className="badge badge-info">
+                    {selectedEmployee.employment_type}
+                  </span>
                 </div>
                 <div className="detail-item">
                   <label>Hire Date</label>
@@ -227,12 +259,16 @@ const EmployeeList = () => {
                 </div>
                 <div className="detail-item">
                   <label>Status</label>
-                  <span className={getStatusBadge(selectedEmployee.status)}>{selectedEmployee.status}</span>
+                  <span className={getStatusBadge(selectedEmployee.status)}>
+                    {selectedEmployee.status}
+                  </span>
                 </div>
               </div>
             </div>
             <div className="modal-footer">
-              <button className="btn btn-outline" onClick={closeModal}>Close</button>
+              <button className="btn btn-outline" onClick={closeModal}>
+                Close
+              </button>
             </div>
           </div>
         </div>

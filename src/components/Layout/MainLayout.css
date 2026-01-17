@@ -16,16 +16,28 @@
 
 .main-content {
   flex: 1;
-  padding: 1.5rem 2rem;
-  min-height: calc(100vh - 65px);
+  padding: 2rem;
+  min-height: calc(100vh - 77px);
   overflow-x: hidden;
   background-color: var(--bg-secondary);
+  /* margin-left: 100px; Offset for fixed sidebar */
+  margin: 0 auto;
+  margin-top: 77px; /* Offset for fixed navbar */
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* Center children horizontally */
+}
+
+.main-content > * {
+  width: 100%;
+  max-width: 1200px; /* Constrain width to ensure visible centering */
 }
 
 /* Responsive Design */
 @media (max-width: 1024px) {
   .main-content {
     padding: 1.25rem 1.5rem;
+    margin-left: 220px;
   }
 }
 
@@ -33,6 +45,7 @@
   .main-content {
     padding: 1rem;
     min-height: calc(100vh - 65px);
+    margin-left: 0;
   }
 }
 

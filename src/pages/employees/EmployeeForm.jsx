@@ -1,26 +1,26 @@
-import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import employeeService from '../../services/employeeService';
-import departmentService from '../../services/departmentService';
-import './EmployeeForm.css';
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import employeeService from "../../services/employeeService";
+import departmentService from "../../services/departmentService";
+import "./EmployeeForm.css";
 
-const EmployeeForm = () => {
+const EmployeeForm = ({ userType }) => {
   const navigate = useNavigate();
   const [departments, setDepartments] = useState([]);
   const [loading, setLoading] = useState(false);
   const [generatedEmployeeId, setGeneratedEmployeeId] = useState(null);
   const [formData, setFormData] = useState({
-    first_name: '',
-    last_name: '',
-    gender: 'male',
-    date_of_birth: '',
-    phone: '',
-    email: '',
-    position: '',
-    department_id: '',
-    employment_type: 'admin',
-    hire_date: '',
-    salary: ''
+    first_name: "",
+    last_name: "",
+    gender: "male",
+    date_of_birth: "",
+    phone: "",
+    email: "",
+    position: userType === "head" ? "Department Head" : "",
+    department_id: "",
+    employment_type: "academic",
+    hire_date: "",
+    salary: "",
   });
 
   useEffect(() => {
@@ -34,14 +34,14 @@ const EmployeeForm = () => {
         setDepartments(response.data);
       }
     } catch (error) {
-      console.error('Failed to fetch departments:', error);
+      console.error("Failed to fetch departments:", error);
     }
   };
 
   const handleChange = (e) => {
     setFormData({
       ...formData,
-      [e.target.name]: e.target.value
+      [e.target.name]: e.target.value,
     });
   };
 
@@ -50,17 +50,27 @@ const EmployeeForm = () => {
     setLoading(true);
 
     try {
-      const response = await employeeService.create(formData);
-      
+      // Include role in submission
+      const dataToSubmit = {
+        ...formData,
+        role: userType || "employee",
+      };
+
+      const response = await employeeService.create(dataToSubmit);
+
       if (response.success) {
         setGeneratedEmployeeId(response.data.employee_id);
-        alert(`✅ Employee created successfully! Employee ID: ${response.data.employee_id}`);
-        navigate('/employees');
+        alert(
+          `✅ ${
+            userType === "head" ? "Department Head" : "Employee"
+          } created successfully! ID: ${response.data.employee_id}`
+        );
+        navigate(userType === "head" ? "/heads" : "/employees");
       } else {
-        alert('❌ Error: ' + (response.message || 'Failed to create employee'));
+        alert("❌ Error: " + (response.message || "Failed to create employee"));
       }
     } catch (error) {
-      alert('❌ Failed: ' + (error.message || 'Network error'));
+      alert("❌ Failed: " + (error.message || "Network error"));
     } finally {
       setLoading(false);
     }
@@ -69,8 +79,13 @@ const EmployeeForm = () => {
   return (
     <div className="employee-form-container">
       <div className="page-header">
-        <h1>Add New Employee</h1>
-        <button onClick={() => navigate('/employees')} className="btn btn-outline">
+        <h1>Add New {userType === "head" ? "Department Head" : "Employee"}</h1>
+        <button
+          onClick={() =>
+            navigate(userType === "head" ? "/heads" : "/employees")
+          }
+          className="btn btn-outline"
+        >
           ← Back to List
         </button>
       </div>
@@ -88,6 +103,7 @@ const EmployeeForm = () => {
                 required
               />
             </div>
+            {/* ... rest of form ... */}
 
             <div className="form-group">
               <label>Last Name *</label>
@@ -104,7 +120,12 @@ const EmployeeForm = () => {
           <div className="form-row">
             <div className="form-group">
               <label>Gender *</label>
-              <select name="gender" value={formData.gender} onChange={handleChange} required>
+              <select
+                name="gender"
+                value={formData.gender}
+                onChange={handleChange}
+                required
+              >
                 <option value="male">Male</option>
                 <option value="female">Female</option>
               </select>
@@ -163,10 +184,17 @@ const EmployeeForm = () => {
 
             <div className="form-group">
               <label>Department *</label>
-              <select name="department_id" value={formData.department_id} onChange={handleChange} required>
+              <select
+                name="department_id"
+                value={formData.department_id}
+                onChange={handleChange}
+                required
+              >
                 <option value="">Select Department</option>
-                {departments.map(dept => (
-                  <option key={dept.id} value={dept.id}>{dept.name}</option>
+                {departments.map((dept) => (
+                  <option key={dept.id} value={dept.id}>
+                    {dept.name}
+                  </option>
                 ))}
               </select>
             </div>
@@ -175,7 +203,12 @@ const EmployeeForm = () => {
           <div className="form-row">
             <div className="form-group">
               <label>Employment Type *</label>
-              <select name="employment_type" value={formData.employment_type} onChange={handleChange} required>
+              <select
+                name="employment_type"
+                value={formData.employment_type}
+                onChange={handleChange}
+                required
+              >
                 <option value="academic">Academic</option>
                 <option value="admin">Admin</option>
                 <option value="support">Support</option>
@@ -210,11 +243,21 @@ const EmployeeForm = () => {
           </div>
 
           <div className="form-actions">
-            <button type="button" onClick={() => navigate('/employees')} className="btn btn-outline">
+            <button
+              type="button"
+              onClick={() =>
+                navigate(userType === "head" ? "/heads" : "/employees")
+              }
+              className="btn btn-outline"
+            >
               Cancel
             </button>
-            <button type="submit" className="btn btn-primary" disabled={loading}>
-              {loading ? 'Creating...' : 'Create Employee'}
+            <button
+              type="submit"
+              className="btn btn-primary"
+              disabled={loading}
+            >
+              {loading ? "Creating..." : "Create Employee"}
             </button>
           </div>
         </form>
